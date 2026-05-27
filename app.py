@@ -2,14 +2,13 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import google.generativeai as genai
+from groq import Groq
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Aurora Executive Dashboard", layout="wide")
 
 # ── API Setup ─────────────────────────────────────────────────────────────────
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-2.0-flash")
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # ── Load Data ─────────────────────────────────────────────────────────────────
 @st.cache_data
@@ -104,5 +103,8 @@ if st.button("Generate AI Insights"):
             f"Top Channel={channel_rev.sort_values('revenue',ascending=False).iloc[0]['channel']}. "
             f"Be concise and professional."
         )
-        response = model.generate_content(summary)
-        st.markdown(response.text)
+       response = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[{"role": "user", "content": summary}]
+        )
+        st.markdown(response.choices[0].message.content)
