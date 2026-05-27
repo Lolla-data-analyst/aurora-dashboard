@@ -9,7 +9,7 @@ st.set_page_config(page_title="Aurora Executive Dashboard", layout="wide")
 
 # ── API Setup ─────────────────────────────────────────────────────────────────
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # ── Load Data ─────────────────────────────────────────────────────────────────
 @st.cache_data
