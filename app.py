@@ -105,7 +105,7 @@ if st.button("Generate AI Insights"):
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "llama-3.3-70b-versatile",,
+            "model": "llama-3.3-70b-versatile",
             "messages": [{"role": "user", "content": prompt}]
         }
         response = requests.post(
