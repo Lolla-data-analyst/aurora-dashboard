@@ -103,7 +103,7 @@ if st.button("Generate AI Insights"):
             f"Top Channel={channel_rev.sort_values('revenue',ascending=False).iloc[0]['channel']}. "
             f"Be concise and professional."
         )
-       response = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[{"role": "user", "content": summary}]
         )
