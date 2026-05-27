@@ -95,22 +95,14 @@ st.subheader("🤖 AI-Generated Executive Insights")
 
 if st.button("Generate AI Insights"):
     with st.spinner("Generating insights..."):
-        summary = f"""
-        You are a senior business analyst. Based on this Aurora Retail data summary, 
-        write a concise executive report with 3 sections:
-        1. Performance Summary
-        2. Key Risks & Opportunities  
-        3. Recommended Executive Actions
-
-        Data:
-        - Total Revenue: ${total_revenue:,.0f}
-        - Total Profit: ${total_profit:,.0f}
-        - Actual vs Budget Revenue Variance: ${revenue_variance:,.0f}
-        - Customer Churn Rate: {churn_rate:.1f}%
-        - Top Region by Revenue: {region_rev.sort_values('revenue', ascending=False).iloc[0]['region']}
-        - Top Channel by Revenue: {channel_rev.sort_values('revenue', ascending=False).iloc[0]['channel']}
-
-        Write in professional, jargon-free language suitable for C-suite executives.
-        """
+        summary = (
+            f"You are a business analyst. Write a short executive summary with 3 sections: "
+            f"1. Performance Summary 2. Key Risks 3. Recommended Actions. "
+            f"Data: Revenue=${total_revenue:,.0f}, Profit=${total_profit:,.0f}, "
+            f"Variance=${revenue_variance:,.0f}, Churn={churn_rate:.1f}%, "
+            f"Top Region={region_rev.sort_values('revenue',ascending=False).iloc[0]['region']}, "
+            f"Top Channel={channel_rev.sort_values('revenue',ascending=False).iloc[0]['channel']}. "
+            f"Be concise and professional."
+        )
         response = model.generate_content(summary)
         st.markdown(response.text)
