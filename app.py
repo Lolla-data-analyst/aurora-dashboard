@@ -109,4 +109,9 @@ if st.button("Generate AI Insights"):
             "messages": [{"role": "user", "content": prompt}]
         }
         response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=headers,
+            json=payload
+        )
+        result = response.json()
+        st.markdown(result["choices"][0]["message"]["content"])
