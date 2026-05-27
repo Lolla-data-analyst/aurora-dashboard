@@ -2,13 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from groq import Groq
+import requests
 
-# ── Page config ──────────────────────────────────────────────────────────────
+# ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Aurora Executive Dashboard", layout="wide")
-
-# ── API Setup ─────────────────────────────────────────────────────────────────
-client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # ── Load Data ─────────────────────────────────────────────────────────────────
 @st.cache_data
@@ -25,21 +22,21 @@ st.subheader("AI-Powered Executive Dashboard")
 st.markdown("---")
 
 # ── KPI Cards ─────────────────────────────────────────────────────────────────
-total_revenue     = df["revenue"].sum()
-total_profit      = df["profit"].sum()
-total_actual_rev  = df["actual_revenue"].sum()
-total_budget_rev  = df["budgeted_revenue"].sum()
-revenue_variance  = total_actual_rev - total_budget_rev
-churn_rate        = (df[df["churn_flag"] == "Yes"]["customer_id"].nunique() /
-                     df["customer_id"].nunique()) * 100
+total_revenue    = df["revenue"].sum()
+total_profit     = df["profit"].sum()
+total_actual_rev = df["actual_revenue"].sum()
+total_budget_rev = df["budgeted_revenue"].sum()
+revenue_variance = total_actual_rev - total_budget_rev
+churn_rate       = (df[df["churn_flag"] == "Yes"]["customer_id"].nunique() /
+                    df["customer_id"].nunique()) * 100
 
 col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("💰 Total Revenue",      f"${total_revenue:,.0f}")
-col2.metric("📈 Total Profit",       f"${total_profit:,.0f}")
-col3.metric("🎯 Actual Revenue",     f"${total_actual_rev:,.0f}")
-col4.metric("📊 Revenue Variance",   f"${revenue_variance:,.0f}",
+col1.metric("💰 Total Revenue",    f"${total_revenue:,.0f}")
+col2.metric("📈 Total Profit",     f"${total_profit:,.0f}")
+col3.metric("🎯 Actual Revenue",   f"${total_actual_rev:,.0f}")
+col4.metric("📊 Revenue Variance", f"${revenue_variance:,.0f}",
             delta=f"{'Over' if revenue_variance > 0 else 'Under'} Budget")
-col5.metric("⚠️ Churn Rate",        f"{churn_rate:.1f}%")
+col5.metric("⚠️ Churn Rate",      f"{churn_rate:.1f}%")
 
 st.markdown("---")
 
@@ -80,7 +77,7 @@ with col4:
                   color="segment", title="Churned Customers by Segment")
     st.plotly_chart(fig4, use_container_width=True)
 
-# ── Profit Trend ───────────────────────────────────────────────────────────────
+# ── Profit Trend ──────────────────────────────────────────────────────────────
 st.subheader("📅 Monthly Profit Trend")
 df["month"] = df["transaction_date"].dt.to_period("M").astype(str)
 monthly = df.groupby("month")["profit"].sum().reset_index()
@@ -94,7 +91,7 @@ st.subheader("🤖 AI-Generated Executive Insights")
 
 if st.button("Generate AI Insights"):
     with st.spinner("Generating insights..."):
-        summary = (
+        prompt = (
             f"You are a business analyst. Write a short executive summary with 3 sections: "
             f"1. Performance Summary 2. Key Risks 3. Recommended Actions. "
             f"Data: Revenue=${total_revenue:,.0f}, Profit=${total_profit:,.0f}, "
@@ -103,8 +100,13 @@ if st.button("Generate AI Insights"):
             f"Top Channel={channel_rev.sort_values('revenue',ascending=False).iloc[0]['channel']}. "
             f"Be concise and professional."
         )
-        response = client.chat.completions.create(
-            model="llama3-8b-8192",
-            messages=[{"role": "user", "content": summary}]
-        )
-        st.markdown(response.choices[0].message.content)
+        headers = {
+            "Authorization": f"Bearer {st.secrets['GROQ_API_KEY']}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "llama3-8b-8192",
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions
