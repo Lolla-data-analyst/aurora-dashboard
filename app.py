@@ -449,4 +449,3 @@ if st.button("Generate Financial Report"):
             st.download_button("📥 Download Report", narrative, file_name="aurora_financial_report.txt")
         else:
             st.error(f"API Error: {fin_result}")
-Code ready - copy everything between the lines
