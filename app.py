@@ -118,3 +118,70 @@ if st.button("Generate AI Insights"):
             st.markdown(result["choices"][0]["message"]["content"])
         else:
             st.error(f"API Error: {result}")
+    st.markdown("---")
+
+# ── Task 2: Financial Narratives ──────────────────────────────────────────────
+st.header("📋 Automated Financial Narratives & Insights")
+
+# Variance Analysis
+st.subheader("Budget vs Actual Revenue Analysis")
+dept = df.groupby("department")[["budgeted_revenue", "actual_revenue"]].sum().reset_index()
+dept["variance"] = dept["actual_revenue"] - dept["budgeted_revenue"]
+dept["variance_pct"] = (dept["variance"] / dept["budgeted_revenue"] * 100).round(2)
+dept["status"] = dept["variance"].apply(lambda x: "✅ Over" if x > 0 else "❌ Under")
+
+st.dataframe(dept[["department", "budgeted_revenue", "actual_revenue", "variance", "variance_pct", "status"]], use_container_width=True)
+
+# Monthly Analysis
+st.subheader("Monthly Revenue Trend")
+monthly_fin = df.groupby("month")[["budgeted_revenue", "actual_revenue"]].sum().reset_index()
+monthly_fin["variance"] = monthly_fin["actual_revenue"] - monthly_fin["budgeted_revenue"]
+fig6 = go.Figure()
+fig6.add_trace(go.Scatter(x=monthly_fin["month"], y=monthly_fin["budgeted_revenue"], name="Budgeted", line=dict(color="blue")))
+fig6.add_trace(go.Scatter(x=monthly_fin["month"], y=monthly_fin["actual_revenue"], name="Actual", line=dict(color="green")))
+fig6.update_layout(title="Monthly Budgeted vs Actual Revenue")
+st.plotly_chart(fig6, use_container_width=True)
+
+# Anomaly Detection
+st.subheader("⚠️ Anomaly Detection")
+mean_var = dept["variance_pct"].mean()
+std_var = dept["variance_pct"].std()
+anomalies = dept[abs(dept["variance_pct"] - mean_var) > 1.5 * std_var]
+if len(anomalies) > 0:
+    st.warning(f"Found {len(anomalies)} anomalies in revenue performance!")
+    st.dataframe(anomalies[["department", "variance_pct", "status"]], use_container_width=True)
+else:
+    st.success("No major anomalies detected!")
+
+# AI Financial Narrative
+st.subheader("🤖 AI-Generated Financial Narrative")
+if st.button("Generate Financial Report"):
+    with st.spinner("Generating financial narrative..."):
+        over = dept[dept["variance"] > 0][["department", "variance_pct"]].to_string(index=False)
+        under = dept[dept["variance"] < 0][["department", "variance_pct"]].to_string(index=False)
+        fin_prompt = (
+            f"You are a financial analyst. Write a concise financial narrative report with: "
+            f"1. Overall Financial Performance 2. Over-performing departments 3. Under-performing departments 4. Recommendations. "
+            f"Total Budgeted: ${total_budget_rev:,.0f}, Total Actual: ${total_actual_rev:,.0f}, "
+            f"Variance: ${revenue_variance:,.0f}. "
+            f"Over-performers: {over}. Under-performers: {under}. "
+            f"Be professional and concise."
+        )
+        fin_headers = {
+            "Authorization": f"Bearer {st.secrets['GROQ_API_KEY']}",
+            "Content-Type": "application/json"
+        }
+        fin_payload = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": fin_prompt}]
+        }
+        fin_response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=fin_headers,
+            json=fin_payload
+        )
+        fin_result = fin_response.json()
+        if "choices" in fin_result:
+            narrative = fin_result["choices"][0]["message"]["content"]
+            st.markdown(narrative)
+            st.download_button("📥 Download Report", narrative, file_name="aurora_financial_report.txt")
