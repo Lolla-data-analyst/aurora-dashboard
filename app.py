@@ -322,4 +322,27 @@ else:
     st.success("✅ No major anomalies detected!")
 
 if st.button("📄 Generate Financial Report"):
-    with st.spinner("Generating financ
+    with st.spinner("Generating financial narrative..."):
+        over  = dept[dept["variance"]>0][["department","variance_pct"]].to_string(index=False)
+        under = dept[dept["variance"]<0][["department","variance_pct"]].to_string(index=False)
+        fin_prompt = (
+            f"Write a concise financial narrative with 4 sections: "
+            f"1. Overall Performance 2. Over-performing departments "
+            f"3. Under-performing departments 4. Recommendations. "
+            f"Budgeted: {fmt(total_budget)}, Actual: {fmt(total_actual)}, "
+            f"Variance: {fmt(variance)}. Over: {over}. Under: {under}."
+        )
+        fin_res = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {st.secrets['GROQ_API_KEY']}",
+                     "Content-Type": "application/json"},
+            json={"model": "llama-3.3-70b-versatile",
+                  "messages": [{"role": "user", "content": fin_prompt}]}
+        ).json()
+        if "choices" in fin_res:
+            narrative = fin_res["choices"][0]["message"]["content"]
+            st.markdown(narrative)
+            st.download_button("📥 Download Report", narrative,
+                               file_name="aurora_financial_report.txt")
+        else:
+            st.error(f"API Error: {fin_res}")
