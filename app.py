@@ -156,9 +156,11 @@ def base_layout(title):
                    showgrid=False, tickangle=-30),
         yaxis=dict(tickfont=dict(size=11, color="#1e3a5f"),
                    title_font=dict(size=12, color="#1e3a5f"),
-                   showgrid=True, gridcolor="#e2e8f0"),
+                   showgrid=True, gridcolor="#e2e8f0",
+                   tickformat="$,.0f"),
         margin=dict(t=50, b=60, l=50, r=20),
-        height=380
+        height=380,
+        legend=dict(font=dict(size=11, color="#1e3a5f"))
     )
 
 # Row 1
@@ -169,11 +171,7 @@ with c1:
                   text=[fmt(v) for v in region_rev["revenue"]])
     fig1.update_traces(textposition="outside", textfont=dict(size=11, color="#1e3a5f", family="Arial Black"),
                        marker_line_width=0)
-    fig1.update_layout(**base_layout("📍 Revenue by Region"),
-                       yaxis=dict(tickfont=dict(size=11, color="#1e3a5f"),
-                                  showgrid=True, gridcolor="#e2e8f0", tickformat="$,.0f"))
-    st.plotly_chart(fig1, use_container_width=True)
-
+fig1.update_layout(**base_layout("📍 Revenue by Region"))
 with c2:
     channel_rev = dff.groupby("channel")["revenue"].sum().reset_index()
     fig2 = px.pie(channel_rev, names="channel", values="revenue",
@@ -204,9 +202,7 @@ with c3:
                           textfont=dict(size=9, color="#1e3a5f", family="Arial Black")))
     fig3.update_layout(barmode="group",
                        **base_layout("📊 Budget vs Actual by Department"),
-                       yaxis=dict(tickfont=dict(size=11, color="#1e3a5f"),
-                                  showgrid=True, gridcolor="#e2e8f0", tickformat="$,.0f"),
-                       legend=dict(font=dict(size=11, color="#1e3a5f")),
+                            legend=dict(font=dict(size=11, color="#1e3a5f")),
                        bargap=0.2, bargroupgap=0.05)
     st.plotly_chart(fig3, use_container_width=True)
 
@@ -220,8 +216,6 @@ with c4:
                        textfont=dict(size=12, color="#1e3a5f", family="Arial Black"),
                        marker_line_width=0)
     fig4.update_layout(**base_layout("⚠️ Churn by Segment"),
-                       yaxis=dict(tickfont=dict(size=11, color="#1e3a5f"),
-                                  showgrid=True, gridcolor="#e2e8f0"))
     st.plotly_chart(fig4, use_container_width=True)
 
 # Row 3
@@ -254,8 +248,6 @@ with c6:
                        marker_line_width=0)
     fig6.update_layout(**base_layout("🛍️ Revenue by Category"),
                        showlegend=False,
-                       yaxis=dict(tickfont=dict(size=11, color="#1e3a5f"),
-                                  showgrid=True, gridcolor="#e2e8f0", tickformat="$,.0f"))
     st.plotly_chart(fig6, use_container_width=True)
 
 st.markdown("---")
