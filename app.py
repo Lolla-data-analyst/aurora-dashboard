@@ -201,9 +201,9 @@ with c3:
                           textposition="outside",
                           textfont=dict(size=9, color="#1e3a5f", family="Arial Black")))
     fig3.update_layout(barmode="group",
-                       **base_layout("📊 Budget vs Actual by Department"),
-                            legend=dict(font=dict(size=11, color="#1e3a5f")),
-                       bargap=0.2, bargroupgap=0.05)
+                           **base_layout("📊 Budget vs Actual by Department"),
+                           legend=dict(font=dict(size=11, color="#1e3a5f")),
+                           bargap=0.2, bargroupgap=0.05)
     st.plotly_chart(fig3, use_container_width=True)
 
 with c4:
