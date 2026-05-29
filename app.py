@@ -215,7 +215,7 @@ with c4:
     fig4.update_traces(textposition="outside",
                        textfont=dict(size=12, color="#1e3a5f", family="Arial Black"),
                        marker_line_width=0)
-    fig4.update_layout(**base_layout("⚠️ Churn by Segment"),
+    fig4.update_layout(**base_layout("⚠️ Churn by Segment"))
     st.plotly_chart(fig4, use_container_width=True)
 
 # Row 3
