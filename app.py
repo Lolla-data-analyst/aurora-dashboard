@@ -247,7 +247,7 @@ with c6:
                        textfont=dict(size=12, color="#1e3a5f", family="Arial Black"),
                        marker_line_width=0)
     fig6.update_layout(**base_layout("🛍️ Revenue by Category"),
-                       showlegend=False,
+                       showlegend=False)
     st.plotly_chart(fig6, use_container_width=True)
 
 st.markdown("---")
