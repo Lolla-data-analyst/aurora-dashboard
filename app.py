@@ -41,6 +41,21 @@ st.markdown("""
         margin-bottom: 20px;
         color: white;
     }
+    .section-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1e3a5f;
+        padding: 10px 0 5px 0;
+        border-left: 4px solid #1d4ed8;
+        padding-left: 12px;
+        margin: 10px 0;
+    }
+    .sub-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e3a5f;
+        margin: 8px 0;
+    }
     [data-testid="stSidebar"] { background-color: #1e3a5f; }
     [data-testid="stSidebar"] * { color: white !important; }
     .stButton > button {
@@ -54,7 +69,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Colors - professional navy/blue only
 C1 = "#1e3a5f"
 C2 = "#1d4ed8"
 C3 = "#93c5fd"
@@ -77,7 +91,7 @@ def load_data():
 
 df = load_data()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
+# Sidebar
 st.sidebar.markdown("## 🏢 Aurora Analytics")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Filters")
@@ -95,21 +109,21 @@ sel_dates   = st.sidebar.select_slider("📅 Month Range", options=months,
 st.sidebar.markdown("---")
 st.sidebar.markdown("Powered by Groq AI")
 
-# ── Filter data ───────────────────────────────────────────────────────────────
+# Filter data
 dff = df.copy()
 if sel_region  != "All": dff = dff[dff["region"] == sel_region]
 if sel_channel != "All": dff = dff[dff["channel"] == sel_channel]
 if sel_segment != "All": dff = dff[dff["customer_segment"] == sel_segment]
 dff = dff[(dff["month"] >= sel_dates[0]) & (dff["month"] <= sel_dates[1])]
 
-# ── Header ────────────────────────────────────────────────────────────────────
+# Header
 st.markdown("""
 <div class="header-banner">
-    <h1 style="margin:0;font-size:24px;font-weight:800;">🏢 Aurora Retail & Digital Services</h1>
-    <p style="margin:5px 0 0 0;font-size:13px;opacity:0.85;">AI-Powered Executive Dashboard</p>
+    <h1 style="margin:0;font-size:24px;font-weight:800;color:white;">🏢 Aurora Retail & Digital Services</h1>
+    <p style="margin:5px 0 0 0;font-size:13px;opacity:0.85;color:white;">AI-Powered Executive Dashboard</p>
 </div>""", unsafe_allow_html=True)
 
-# ── KPIs ──────────────────────────────────────────────────────────────────────
+# KPIs
 total_revenue   = dff["revenue"].sum()
 total_profit    = dff["profit"].sum()
 total_actual    = dff["actual_revenue"].sum()
@@ -170,14 +184,14 @@ with k6:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── Shared chart style ────────────────────────────────────────────────────────
+# Chart styles
 FONT  = dict(family="Arial", size=12, color="#1e3a5f")
 XAXIS = dict(tickfont=dict(size=11, color="#1e3a5f"), showgrid=False, tickangle=-30)
 YAXIS = dict(tickfont=dict(size=11, color="#1e3a5f"), showgrid=True,
              gridcolor="#e2e8f0", tickformat="$,.0f")
 MARG  = dict(t=50, b=60, l=50, r=20)
 
-# ── Row 1 ─────────────────────────────────────────────────────────────────────
+# Row 1
 c1, c2 = st.columns(2)
 
 with c1:
@@ -210,7 +224,7 @@ with c2:
                        margin=dict(t=50, b=20, l=20, r=20), height=380)
     st.plotly_chart(fig2, use_container_width=True)
 
-# ── Row 2 ─────────────────────────────────────────────────────────────────────
+# Row 2
 c3, c4 = st.columns(2)
 
 with c3:
@@ -260,7 +274,7 @@ with c4:
     )
     st.plotly_chart(fig4, use_container_width=True)
 
-# ── Row 3 ─────────────────────────────────────────────────────────────────────
+# Row 3
 c5, c6 = st.columns(2)
 
 with c5:
@@ -304,8 +318,8 @@ with c6:
 
 st.markdown("---")
 
-# ── AI Insights ───────────────────────────────────────────────────────────────
-st.markdown("### 🤖 AI-Generated Executive Insights")
+# AI Insights
+st.markdown('<div class="section-title">🤖 AI-Generated Executive Insights</div>', unsafe_allow_html=True)
 
 if st.button("✨ Generate AI Insights"):
     with st.spinner("Generating insights..."):
@@ -332,16 +346,21 @@ if st.button("✨ Generate AI Insights"):
 
 st.markdown("---")
 
-# ── Task 2: Financial Narratives ──────────────────────────────────────────────
-st.markdown("### 📋 Automated Financial Narratives & Insights")
+# Task 2: Financial Narratives
+st.markdown('<div class="section-title">📋 Automated Financial Narratives & Insights</div>', unsafe_allow_html=True)
 
 dept["variance"]     = dept["actual_revenue"] - dept["budgeted_revenue"]
 dept["variance_pct"] = (dept["variance"] / dept["budgeted_revenue"] * 100).round(2)
 dept["status"]       = dept["variance"].apply(lambda x: "✅ Over" if x > 0 else "❌ Under")
 
-st.markdown("**Budget vs Actual Revenue Analysis**")
-st.dataframe(dept[["department", "budgeted_revenue", "actual_revenue",
-                    "variance", "variance_pct", "status"]], use_container_width=True)
+st.markdown('<div class="sub-title">Budget vs Actual Revenue Analysis</div>', unsafe_allow_html=True)
+
+dept_display = dept[["department","budgeted_revenue","actual_revenue","variance","variance_pct","status"]].copy()
+dept_display["budgeted_revenue"] = dept_display["budgeted_revenue"].apply(fmt)
+dept_display["actual_revenue"]   = dept_display["actual_revenue"].apply(fmt)
+dept_display["variance"]         = dept_display["variance"].apply(fmt)
+dept_display["variance_pct"]     = dept_display["variance_pct"].apply(lambda x: f"{x:.2f}%")
+st.dataframe(dept_display, use_container_width=True)
 
 monthly_fin = dff.groupby("month")[["budgeted_revenue", "actual_revenue"]].sum().reset_index()
 monthly_fin = monthly_fin.sort_values("month")
